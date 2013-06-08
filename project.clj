@@ -8,7 +8,8 @@
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [korma "0.3.0-RC5"]
                  [org.xerial/sqlite-jdbc "3.7.2"]
-                 [http-kit "2.1.3"]]
+                 [http-kit "2.1.3"]
+                 [org.clojure/tools.nrepl "0.2.3"]]
   ;; I'm pretty sure this next line is obsolete
   ;; (I should be using profiles instead
   :plugins [[lein-ring "0.8.5"]]
