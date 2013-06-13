@@ -20,3 +20,23 @@
   []
   (alter-var-root #'system system/start))
 
+(defn stop
+  "Shuts down and destroys the current developmnt system"
+  []
+  (alter-var-root #'system
+                  (fn [s]
+                    (when s 
+                      (system/stop s)))))
+
+(defn go
+  "Initializes the development system and starts it running"
+  []
+  (init)
+  (start))
+
+(defn reset
+  "Heart of this thing. Stop the current application. Reload any changed source files. Reinitialize everything."
+  []
+  (stop)
+  (refresh :after 'user/go))
+
