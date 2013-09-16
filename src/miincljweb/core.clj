@@ -1,5 +1,6 @@
 (ns miincljweb.core
   (:require [org.httpkit.server :as server]
+            [clojure.tools.nrepl.server :refer [start-server stop-server]]
             [compojure.core :as compojure]
             [compojure.handler :as handler]
             [compojure.route :as route]
@@ -56,6 +57,7 @@ that some caller expects."
 ;; If you overwrite it, or lose the reference in some other way, it's
 ;; your fault...though that would be a good argument to come up with a
 ;; better approach.
+;; FIXME: There isn't any reason for this to be dynamic
 (def ^:dynamic *shut-down* (atom (fn [] (throw (Exception. "Not running")))))
 
 (defn -main
@@ -63,9 +65,13 @@ that some caller expects."
   [& args]
   ;; work around dangerous default behaviour in Clojure
   (alter-var-root #'*read-eval* (constantly false))
-  (let [port (Integer/parseInt (get (System/getenv) "PORT" "9090"))]
+  (let [port (Integer/parseInt (get (System/getenv) "PORT" "9090"))
+        ;; The arbitrariness of the next line is ridiculous.
+        ;; FIXME: This stuff needs to be in a config namespace
+        repl-port (inc port)]    
     (let [sd (server/run-server (handler/site #'main-routes) {:port port})]
-      (swap! *shut-down* (fn [_] sd)))))
+      (swap! *shut-down* (fn [_] sd)))
+    (reset! repl (start-server :port repl-port))))
 
 ;; For lein-ring.
 (def app (handler/site main-routes))

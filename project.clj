@@ -5,8 +5,13 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [compojure "1.1.5"]
+                 ;; TODO: Switch to enlive
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [korma "0.3.0-RC5"]
+                 [org.clojure/tools.nrepl "0.2.3"]
+                 ;; TODO: Use a real database
+                 ;; More to the point: why does this know about the
+                 ;; database backend at all?
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [http-kit "2.1.3"]]
   ;; I'm pretty sure this next line is obsolete
