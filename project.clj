@@ -17,6 +17,9 @@
   ;; I'm pretty sure this next line is obsolete
   ;; (I should be using profiles instead
   :plugins [[lein-ring "0.8.5"]]
-  :ring {:handler miincljweb.core/app}
+  :profiles {:dev {:source-paths ["dev"]
+                   :dependencies [[org.clojure/tools.namespace "0.2.3"]
+                                  [org.clojure/java.classpath "0.2.0"]]}}
+  ;;:ring {:handler miincljweb.core/app}
   :min-lein-version "2.0.0"
   :main miincljweb.core)

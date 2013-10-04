@@ -1,6 +1,6 @@
 (ns miincljweb.renderer
   (:gen-class)
-  (:require [[clostache.parser :as clostache]]))
+  (:require [clostache.parser :as clostache]))
 
 (defn read-template [template-name]
   "Pull a template file off the disk.
