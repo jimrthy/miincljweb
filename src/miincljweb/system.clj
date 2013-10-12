@@ -57,4 +57,4 @@ that some caller expects."
   [server]
   ;; FIXME: Watch for exceptions
   (@(:shut-down server ))
-  (shutdown @(:repl server)))
+  (stop-server @(:repl server)))

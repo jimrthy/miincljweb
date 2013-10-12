@@ -9,7 +9,7 @@
 
 (def system nil)
 
-(def init
+(defn init
   []
   (alter-var-root #'system
                   (constantly (sys/init))))
@@ -21,7 +21,7 @@
 (defn stop
   []
   (alter-var-root #'system
-                  (fn [s] (when s (system/stop s)))))
+                  (fn [s] (when s (sys/stop s)))))
 
 (defn go
   []
