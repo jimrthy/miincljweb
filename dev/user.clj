@@ -16,7 +16,7 @@
 
 (defn start
   []
-  (alter-var-root #'system (sys/start)))
+  (alter-var-root #'system sys/start))
 
 (defn stop
   []

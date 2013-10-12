@@ -14,7 +14,7 @@
 (defn init
   []
   ;; FIXME: Switch to using slingshot
-  {:shutdown (atom (fn [] (throw (Exception. "Not running"))))
+  {:shut-down (atom (fn [] (throw (Exception. "Not running"))))
    :repl (atom nil)
    ;; For lein-ring.
    :handler (atom nil)})
@@ -48,7 +48,9 @@ that some caller expects."
         ;; FIXME: This stuff needs to be in a config namespace
         repl-port (inc port)]
     (let [sd (server/run-server (handler/site #'main-routes) {:port port})]
-      (reset! (:shut-down server) (fn [_] sd)))
+      (comment (println "Setting up a new web server on port " port " with a shutdown:\n" sd
+                        "\nCurrent Shut Down:\n" (:shut-down server)))
+      (reset! (:shut-down server) sd))
     (reset! (:repl server) (start-server :port repl-port))
 
     (reset! (:handler server) (handler/site main-routes))))
