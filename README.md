@@ -30,11 +30,10 @@ Usage
 =====
 
 For now:
-    lein uberjar
     lein install
 
 Then, in your project, add a dependency to 
-    [miincljweb "0.1.0-SNAPSHOT"]
+    [jimrthy/miincljweb "0.1.0-SNAPSHOT"]
 
 In whatever you want to run the server from, add a
     [miincljweb.system] 
