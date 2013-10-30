@@ -2,6 +2,7 @@
   (:require
    [clojure.tools.nrepl.server :refer [start-server stop-server]]
    [compojure.handler :as handler]
+   [miincljweb.config :as cfg]
    [miincljweb.routes :as routes]
    [org.httpkit.server :as server])
   (:gen-class))
@@ -17,27 +18,39 @@
   []
   ;; FIXME: Switch to using slingshot
   {:shut-down (atom (fn [] (throw (Exception. "Not running"))))
+   :sites (atom nil)
    :repl (atom nil)
    ;; For lein-ring.
    :handler (atom nil)})
 
-;;; FIXME: None of these next few routing pieces belong in here.
+(defn start-web-server
+  [description]
+  (let [port (:port description)
+        router (:router description)
+        sd (server/run-server (handler/site router)
+                              {:port port})]
+    (println "Started " (:domain description) " on port " port)
+    (into description
+          {
+           ;; Q: Is handler worth keeping a reference to this around?
+           :handler (handler/site router)
+           :shut-down sd})))
+
 (defn start
   "Performs side-effects to initialize system, acquire resources, and start it running.
 Returns an updated instance of the system.
 Dangerous: if this throws an exception, it could easily lock a resource with no way to
 release. Pretty much the only way out then is to restart the JVM."
   [server]
-  (let [port (Integer/parseInt (get (System/getenv) "PORT" "9090"))
-        ;; The arbitrariness of the next line is ridiculous.
-        ;; FIXME: This stuff needs to be in a config namespace
-        repl-port (inc port)]
-    (let [sd (server/run-server (handler/site #'routes/main-routes) {:port port})]
-      (println "Starting a web server on port " port)
-      (reset! (:shut-down server) sd))
-    (reset! (:repl server) (start-server :port repl-port))
+  (let [sites (map start-web-server (cfg/sites))]
+    ;; Seems like this might possibly be interesting to keep around
+    (reset! (:sites server) sites)
+    (reset! (:shut-down server) (comp (map :shut-down sites))))
 
-    (reset! (:handler server) (handler/site routes/main-routes))))
+  (let [repl-port (cfg/repl-port)]
+    (reset! (:repl server) (start-server :port repl-port)))
+
+  server)
 
 (defn stop
   "Performs side-effects to stop system and release its resources.
@@ -46,5 +59,11 @@ Dangerous in pretty much exactly the same way as start."
   [server]
   ;; FIXME: Watch for exceptions
   (@(:shut-down server ))
-  (stop-server @(:repl server)))
+  (stop-server @(:repl server))
+
+  (reset! (:sites server) nil)
+  (reset! (:shutdown server) (fn [] (throw (RuntimeException. "Not running"))))
+  (reset! (:repl server) nil)
+
+  server)
 

@@ -11,6 +11,9 @@
 At the very least, it absolutely does not belong here."
   (renderer/render-template "index" {:greeting "Bonjour"}))
 
+(defn index2 [req]
+  (renderer/render-template "index" {:greeting "Ola"}))
+
 (defn not-found [req]
 "Basic error handler. It's main point is to let me know that I'm missing a route
 that some caller expects."
@@ -27,3 +30,8 @@ that some caller expects."
   (route/resources "/")
   (route/not-found not-found))
 
+(compojure/defroutes alt-routes
+"Routes for my second site"
+(compojure/GET "/" [] index2)
+(route/resources "/")
+(route/not-found not-found))
