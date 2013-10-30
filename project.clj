@@ -3,13 +3,19 @@
   :url "http://github.com/jimrthy/miincljweb"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[com.taoensso/timbre "2.6.3"]
                  [compojure "1.1.5"]
                  ;; TODO: Switch to enlive
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [korma "0.3.0-RC5"]
+                 [org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.nrepl "0.2.3"]
                  ;; TODO: Use a real database
+                 ;; Actually, should look into options for
+                 ;; handling multiple databases.
+                 ;; Q: Is there any good way to do that without
+                 ;; downloading a ton of needless dependencies?
+                 ;; A: That really seems to be what profiles are for.
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [http-kit "2.1.3"]
                  [org.clojure/tools.nrepl "0.2.3"]

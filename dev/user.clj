@@ -5,17 +5,21 @@
             [clojure.repl :refer :all]
             [clojure.test :as test]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-            [miincljweb.system :as sys]))
+            [miincljweb.config :as cfg]
+            [miincljweb.system :as sys]
+            [taoensso.timbre :as log]))
 
 (def system nil)
 
 (defn init
   []
   (alter-var-root #'system
-                  (constantly (sys/init))))
+                  (constantly (sys/init)))
+  (log/set-level! :trace))
 
 (defn start
   []
+  (reset! (:sites system) (cfg/sites))
   (alter-var-root #'system sys/start))
 
 (defn stop

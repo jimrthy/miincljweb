@@ -2,9 +2,12 @@
   (:require
    [clojure.tools.nrepl.server :refer [start-server stop-server]]
    [compojure.handler :as handler]
+   [clojure.core.reducers :as r]
    [miincljweb.config :as cfg]
    [miincljweb.routes :as routes]
-   [org.httpkit.server :as server])
+   [org.httpkit.server :as server]
+   [taoensso.timbre :as timbre
+    :refer (trace debug info warn error fatal spy with-log-level)])
   (:gen-class))
 
 
@@ -17,7 +20,7 @@
 (defn init
   []
   ;; FIXME: Switch to using slingshot
-  {:shut-down (atom (fn [] (throw (Exception. "Not running"))))
+  {:shut-down (atom (fn [] (throw (RuntimeException. "Not running"))))
    :sites (atom nil)
    :repl (atom nil)
    ;; For lein-ring.
@@ -29,11 +32,12 @@
         router (:router description)
         sd (server/run-server (handler/site router)
                               {:port port})]
-    (println "Started " (:domain description) " on port " port)
+    (trace "Started " (:domain description) " on port " port)
     (into description
           {
            ;; Q: Is handler worth keeping a reference to this around?
            :handler (handler/site router)
+           :running true
            :shut-down sd})))
 
 (defn start
@@ -42,10 +46,37 @@ Returns an updated instance of the system.
 Dangerous: if this throws an exception, it could easily lock a resource with no way to
 release. Pretty much the only way out then is to restart the JVM."
   [server]
-  (let [sites (map start-web-server (cfg/sites))]
-    ;; Seems like this might possibly be interesting to keep around
-    (reset! (:sites server) sites)
-    (reset! (:shut-down server) (comp (map :shut-down sites))))
+  ;; This lets the end-user customize the sites without
+  ;; updating the config.
+  ;; Mostly useful when using this as a library.
+  (when-not @(:sites server)
+    (reset! (:sites server) (cfg/sites)))
+
+  (let [sites @(:sites server)]
+    ;; Really seems like I could be doing this with a
+    ;; something like a reducer for truly gigantic
+    ;; sites.
+    ;; Or maybe using take to set up a few (based on
+    ;; core count) of seqs to map into a pmap. Going
+    ;; through the list twice is quite wasteful.
+    ;; Then again, this shouldn't be run very often.
+    (let [started-sites (map start-web-server @(:sites server))]
+      ;; Make sure they're realized
+      ;;(doseq started-sites)
+      (reset! (:sites server) started-sites))
+
+    ;; This will allow one site to be shut down at a time.
+    ;; Things will get broken quickly if you don't coordinate
+    ;; the shut-down function
+    ;; TODO: Add a function for shutting down an individual site.
+    ;; It will have to update the :sites atom.
+    ;; Actually, if that sort of thing is going to be common,
+    ;; I need to rethink the fundamental data structure
+    (reset! (:shut-down server) (fn []
+                                  (doseq [site @(:sites server)]
+                                    (when (:running site)
+                                      (trace "Stopping: " (:domain site))
+                                      ((:shut-down site)))))))
 
   (let [repl-port (cfg/repl-port)]
     (reset! (:repl server) (start-server :port repl-port)))
@@ -57,12 +88,17 @@ release. Pretty much the only way out then is to restart the JVM."
 Returns an updated instance of the system.
 Dangerous in pretty much exactly the same way as start."
   [server]
-  ;; FIXME: Watch for exceptions
-  (@(:shut-down server ))
-  (stop-server @(:repl server))
+  (try
+    (@(:shut-down server))
+    (catch RuntimeException ex
+      (error "Shutting down web servers failed:" ex)))
+  (try
+    (stop-server @(:repl server))
+    (catch RuntimeException ex
+      (error "Shutting down nREPL failed:" ex)))
 
   (reset! (:sites server) nil)
-  (reset! (:shutdown server) (fn [] (throw (RuntimeException. "Not running"))))
+  (reset! (:shut-down server) (fn [] (throw (RuntimeException. "Not running"))))
   (reset! (:repl server) nil)
 
   server)

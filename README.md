@@ -18,17 +18,46 @@ It combines
 * korma for the data layer
 * sqlite under the hood
 
+Actually, most of those batteries will most likely
+be going away. The useful part that this performs
+is running multiple servers on multiple ports inside
+the same JVM.
+
+This should help conserve memory if you're running
+a bunch of miniscule sites behind, say, nginx.
+
 Usage
 =====
 
-Open up core.clj, start adding routes.
+For now:
+    lein uberjar
+    lein install
 
-Caveats
-=======
+Then, in your project, add a dependency to 
+    [miincljweb "0.1.0-SNAPSHOT"]
 
-This probably won't be of any use to anyone but me. Still,
-I did spend a few hours identifying these libraries and
-making them work. So it seems like it might be worth tossing
-out.
+In whatever you want to run the server from, add a
+    [miincljweb.system] 
+to your ns declaration.
 
+Start with the default map returned from
+    (miincljweb.system/init)
+
+Then set up definitions for your sites. These should
+be a seq of maps. See config.clj for examples (you
+really just need :domain, :port, and :router entries
+for each).
+
+reset! the system map's atom to be that sequence.
+
+Then call
+    (miincljweb.system/start updated-map)
+
+You can call
+    (miincljweb.system/stop updated-map)
+to stop all your sites if you need to, for example,
+update the routing.
+
+Restarting individual sites is fairly high on my
+priority list.
 
