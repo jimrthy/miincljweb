@@ -5,9 +5,10 @@
 ;; Really should load this from a configuration file instead.
 (db/defdb ^:dynamic *db* (db/sqlite3 {:classname "org.sqlite.JDBC"
                                       :subprotocol "sqlite"
-                                      :subprotocol "test.DB"}))
+                                      :subname "test.DB"}))
 
-;;; Some example entities inherited from a django database.
+;;; Some example entities inherited from a random database I had
+;;; sitting around.
 (kc/defentity partner_paymentprocessor
   (kc/entity-fields :name :short_code))
 

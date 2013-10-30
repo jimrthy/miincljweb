@@ -1,3 +1,10 @@
+FIXME: Need to specifically switch to Stuart Sierra's
+Workflow Revisited. That's basically the entire
+justification for this project over luminus.
+
+Should also add lib-noir. Seems only reasonable.
+
+
 miincljweb
 ==========
 

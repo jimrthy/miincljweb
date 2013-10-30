@@ -5,11 +5,13 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [compojure "1.1.5"]
-                 ;; Very tempting to replace the next line, considering the problems
-                 ;; I'm having with clostache at work. Leave it be for now, but definitely
-                 ;; think about it.
+                 ;; TODO: Switch to enlive
                  [de.ubercode.clostache/clostache "1.3.1"]
                  [korma "0.3.0-RC5"]
+                 [org.clojure/tools.nrepl "0.2.3"]
+                 ;; TODO: Use a real database
+                 ;; More to the point: why does this know about the
+                 ;; database backend at all?
                  [org.xerial/sqlite-jdbc "3.7.2"]
                  [http-kit "2.1.3"]
                  [org.clojure/tools.nrepl "0.2.3"]
@@ -20,6 +22,6 @@
   :profiles {:dev {:source-paths ["dev"]
                    :dependencies [[org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]]}}
-  :ring {:handler miincljweb.core/app}
+  ;;:ring {:handler miincljweb.core/app}
   :min-lein-version "2.0.0"
   :main miincljweb.core)

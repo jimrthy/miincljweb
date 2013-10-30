@@ -1,35 +1,29 @@
 (ns user
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [clojure.pprint :refer pprint]
+            [clojure.pprint :refer (pprint)]
             [clojure.repl :refer :all]
             [clojure.test :as test]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
-            [miincljweb.system :as system]))
+            [miincljweb.system :as sys]))
 
 (def system nil)
 
 (defn init
-  "Constructs the current development system"
   []
   (alter-var-root #'system
-                  (constantly (system/system))))
+                  (constantly (sys/init))))
 
 (defn start
-  "Starts the current development system"
   []
-  (alter-var-root #'system system/start))
+  (alter-var-root #'system sys/start))
 
 (defn stop
-  "Shuts down and destroys the current developmnt system"
   []
   (alter-var-root #'system
-                  (fn [s]
-                    (when s 
-                      (system/stop s)))))
+                  (fn [s] (when s (sys/stop s)))))
 
 (defn go
-  "Initializes the development system and starts it running"
   []
   (init)
   (start))
