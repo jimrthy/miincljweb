@@ -49,8 +49,10 @@ release. Pretty much the only way out then is to restart the JVM."
   ;; This lets the end-user customize the sites without
   ;; updating the config.
   ;; Mostly useful when using this as a library.
-  (when-not @(:sites server)
-    (reset! (:sites server) (cfg/sites)))
+  (if-let [sites-atom (:sites server)]
+    (when-not @sites-atom
+      (reset! (:sites server) (cfg/sites)))
+    (error "Missing sites in" server))
 
   (let [sites @(:sites server)]
     ;; Really seems like I could be doing this with a

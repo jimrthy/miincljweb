@@ -7,6 +7,7 @@
                  [compojure "1.1.5"]
                  ;; TODO: Switch to enlive
                  [de.ubercode.clostache/clostache "1.3.1"]
+                 [http-kit "2.1.3"]
                  [korma "0.3.0-RC5"]
                  [org.clojure/clojure "1.5.1"]
                  [org.clojure/tools.nrepl "0.2.3"]
@@ -16,10 +17,7 @@
                  ;; Q: Is there any good way to do that without
                  ;; downloading a ton of needless dependencies?
                  ;; A: That really seems to be what profiles are for.
-                 [org.xerial/sqlite-jdbc "3.7.2"]
-                 [http-kit "2.1.3"]
-                 [org.clojure/tools.nrepl "0.2.3"]
-                 [org.clojure/tools.namespace "0.2.3"]]
+                 [org.xerial/sqlite-jdbc "3.7.2"]]
   :global-vars {*warn-on-reflection* true}
   :min-lein-version "2.0.0"
   :main miincljweb.core
