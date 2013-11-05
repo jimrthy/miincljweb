@@ -1,6 +1,6 @@
 (ns miincljweb.system
   (:require
-   [clojure.tools.nrepl.server :refer [start-server stop-server]]
+   [clojure.tools.nrepl.server :as nrepl-server]
    [compojure.handler :as handler]
    [clojure.core.reducers :as r]
    [miincljweb.config :as cfg]
@@ -81,7 +81,7 @@ release. Pretty much the only way out then is to restart the JVM."
                                       ((:shut-down site)))))))
 
   (let [repl-port (cfg/repl-port)]
-    (reset! (:repl server) (start-server :port repl-port)))
+    (reset! (:repl server) (nrepl-server/start-server :port repl-port)))
 
   server)
 
@@ -90,18 +90,35 @@ release. Pretty much the only way out then is to restart the JVM."
 Returns an updated instance of the system.
 Dangerous in pretty much exactly the same way as start."
   [server]
+  (trace server)
   (try
-    (@(:shut-down server))
-    (catch RuntimeException ex
+    (if-let [shut-down-atom (:shut-down server)]
+      (if-let [shut-down-method @shut-down-atom]
+        (shut-down-method)
+        (warn "No web shutdown method"))
+      (warn "No web shutdown atom"))
+    (catch Throwable ex
       (error "Shutting down web servers failed:" ex)))
   (try
-    (stop-server @(:repl server))
-    (catch RuntimeException ex
+    (if-let [stop-repl-atom (:repl server)]
+      (if-let [repl-stopper @stop-repl-atom]
+        (nrepl-server/stop-server repl-stopper)
+        (warn "No nREPL server to stop"))
+      (warn "Missing nREPL server atom"))
+    (catch Throwable ex
       (error "Shutting down nREPL failed:" ex)))
 
-  (reset! (:sites server) nil)
-  (reset! (:shut-down server) (fn [] (throw (RuntimeException. "Not running"))))
-  (reset! (:repl server) nil)
+  (if-let [sites (:sites server)]
+    (reset! sites nil)
+    (warn "Missing sites atom"))
+  (if-let [shutdown (:shut-down server)]
+    (reset! shutdown (fn [] (throw (RuntimeException. "Not running"))))
+    (warn "Missing web server(s) shutdown atom"))
+  (if-let [repl (:repl server)]
+    (reset! repl nil)
+    (warn "Missing REPL atom"))
+
+  (trace server)
 
   server)
 

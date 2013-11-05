@@ -2,7 +2,7 @@
   (:gen-class))
 
 (defn now []
-"According to SO, this is the idiomatic way to get the current time."
+  "According to SO, this is the idiomatic way to get the current time."
   (java.util.Date.))
 
 (defn log [o]

@@ -25,8 +25,12 @@
   ;; (I should be using profiles instead
   ;; Especially since I've switched to http-kit...
   ;; That seems like a very debatable choice.
-  :plugins [[lein-ring "0.8.5"]]
+  :plugins [[lein-ring "0.8.5"]
+            ;; Try adding a linter to figure out why miincljweb.config
+            ;; is disappearing.
+            [jonase/eastwood "0.0.2"]]
   :profiles {:dev {:source-paths ["dev"]
-                   :dependencies [[org.clojure/tools.namespace "0.2.3"]
+                   :dependencies [[clj-ns-browser "1.3.1"]
+                                  [org.clojure/tools.namespace "0.2.3"]
                                   [org.clojure/java.classpath "0.2.0"]]}}
   :repl-options {:init-ns user})
