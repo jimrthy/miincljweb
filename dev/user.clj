@@ -1,6 +1,5 @@
 (ns user
-  (:require [clj-ns-browser.sdoc :refer (sdoc)]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [clojure.pprint :refer (pprint)]
             [clojure.repl :refer :all]
