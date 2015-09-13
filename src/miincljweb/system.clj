@@ -1,4 +1,5 @@
 (ns miincljweb.system
+  "This is screaming to switch to Components"
   (:require
    [clojure.tools.nrepl.server :as nrepl-server]
    [compojure.handler :as handler]
@@ -18,13 +19,13 @@
 ;;;; reminder about how to do things.
 
 (defn init
-  []
+  "This approach is mixing up concerns:
+I really have a collection of sites, each with its own handlers/stop fn"
+  [site-descriptions]
   ;; FIXME: Switch to using slingshot
-  {:shut-down (atom (fn [] (throw (RuntimeException. "Not running"))))
-   :sites (atom nil)
-   :repl (atom nil)
-   ;; For lein-ring.
-   :handler (atom nil)})
+  {:running nil
+   :sites site-descriptions
+   :repl nil})
 
 (defn start-web-server
   [description]
@@ -36,6 +37,9 @@
     (into description
           {
            ;; Q: Is handler worth keeping a reference to this around?
+           ;; A: Absolutely.
+           ;; Compojure isn't super-friendly for this sort of thing,
+           ;; but it *can* be called.
            :handler (handler/site router)
            :running true
            :shut-down sd})))
@@ -49,12 +53,7 @@ release. Pretty much the only way out then is to restart the JVM."
   ;; This lets the end-user customize the sites without
   ;; updating the config.
   ;; Mostly useful when using this as a library.
-  (if-let [sites-atom (:sites server)]
-    (when-not @sites-atom
-      (reset! (:sites server) (cfg/sites)))
-    (error "Missing sites in" server))
-
-  (let [sites @(:sites server)]
+  (if-let [sites (:sites server)]
     ;; Really seems like I could be doing this with a
     ;; something like a reducer for truly gigantic
     ;; sites.
@@ -62,28 +61,16 @@ release. Pretty much the only way out then is to restart the JVM."
     ;; core count) of seqs to map into a pmap. Going
     ;; through the list twice is quite wasteful.
     ;; Then again, this shouldn't be run very often.
-    (let [started-sites (map start-web-server @(:sites server))]
-      ;; Make sure they're realized
-      ;;(doseq started-sites)
-      (reset! (:sites server) started-sites))
-
-    ;; This will allow one site to be shut down at a time.
-    ;; Things will get broken quickly if you don't coordinate
-    ;; the shut-down function
-    ;; TODO: Add a function for shutting down an individual site.
-    ;; It will have to update the :sites atom.
-    ;; Actually, if that sort of thing is going to be common,
-    ;; I need to rethink the fundamental data structure
-    (reset! (:shut-down server) (fn []
-                                  (doseq [site @(:sites server)]
-                                    (when (:running site)
-                                      (trace "Stopping: " (:domain site))
-                                      ((:shut-down site)))))))
-
-  (let [repl-port (cfg/repl-port)]
-    (reset! (:repl server) (nrepl-server/start-server :port repl-port)))
-
-  server)
+    ;; And, if you're trying to maintain that many sites,
+    ;; you should probably be using something like
+    ;; jboss.
+    (let [started-sites (doseq [site sites]
+                          (start-web-server site))
+          repl (nrepl-server/start-server :port (cfg/repl-port))]
+      {:running (promise)
+       :sites started-sites
+       :repl repl})
+    (error "Missing sites in" server)))
 
 (defn stop
   "Performs side-effects to stop system and release its resources.
@@ -91,34 +78,19 @@ Returns an updated instance of the system.
 Dangerous in pretty much exactly the same way as start."
   [server]
   (trace server)
-  (try
-    (if-let [shut-down-atom (:shut-down server)]
-      (if-let [shut-down-method @shut-down-atom]
-        (shut-down-method)
-        (warn "No web shutdown method"))
-      (warn "No web shutdown atom"))
-    (catch Throwable ex
-      (error "Shutting down web servers failed:" ex)))
-  (try
-    (if-let [stop-repl-atom (:repl server)]
-      (if-let [repl-stopper @stop-repl-atom]
-        (nrepl-server/stop-server repl-stopper)
-        (warn "No nREPL server to stop"))
-      (warn "Missing nREPL server atom"))
-    (catch Throwable ex
-      (error "Shutting down nREPL failed:" ex)))
+  (when-let [running (:running server)]
+    (doseq [site (:sites server)]
+      (when (:running site)
+        (trace "Stopping: " (:domain site))
+        ((:shut-down site))))
+    (when-let [repl-stopper (:repl server)]
+      (repl-stopper))
 
-  (if-let [sites (:sites server)]
-    (reset! sites nil)
-    (warn "Missing sites atom"))
-  (if-let [shutdown (:shut-down server)]
-    (reset! shutdown (fn [] (throw (RuntimeException. "Not running"))))
-    (warn "Missing web server(s) shutdown atom"))
-  (if-let [repl (:repl server)]
-    (reset! repl nil)
-    (warn "Missing REPL atom"))
+    ;; Q: Does this deliver the "real" thing?
+    (deliver running true))
 
-  (trace server)
-
-  server)
+  ;; Then just start over with a blank slate
+  (init (map (fn [site]
+               (assoc site :running false))
+             (:sites server))))
 
