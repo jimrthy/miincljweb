@@ -1,35 +1,26 @@
 (ns miincljweb.system
-  "This is screaming to switch to Components"
+  "Skeleton that provides the structure for everything else to build around"
   (:require
    [clojure.tools.nrepl.server :as nrepl-server]
    [compojure.handler :as handler]
    [clojure.core.reducers :as r]
    [miincljweb.config :as cfg]
    [miincljweb.routes :as routes]
-   [org.httpkit.server :as server]
+   [miincljweb.server :as web]
+   [schema.core :as s]
    [taoensso.timbre :as timbre
     :refer (trace debug info warn error fatal spy with-log-level)])
   (:gen-class))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Schema
 
-;;;; Based on Stuart Sierra's workflow
-;;;; (thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded)
-;;;; Probably stupid and pointless to include that here, but at
-;;;; least it's some sort of skeletal
-;;;; reminder about how to do things.
-
-(defn init
-  "This approach is mixing up concerns:
-I really have a collection of sites, each with its own handlers/stop fn"
-  [site-descriptions]
-  ;; FIXME: Switch to using slingshot
-  ;; Q: What did that comment even mean?
-  {:running nil
-   :sites site-descriptions
-   :repl nil})
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Internal
 
 (defn start-web-server
   [description]
+  (throw (ex-info "obsolete" {:replacement 'miincljweb.server}))
   (let [port (:port description)
         router (:router description)
         sd (server/run-server (handler/site router)
@@ -51,6 +42,8 @@ Returns an updated instance of the system.
 Dangerous: if this throws an exception, it could easily lock a resource with no way to
 release. Pretty much the only way out then is to restart the JVM."
   [server]
+  (throw (ex-info "Obsolete" {:replacement "individual components"}))
+  ;; Actually, individual components need to handle their own startup/shutdown
   ;; This lets the end-user customize the sites without
   ;; updating the config.
   ;; Mostly useful when using this as a library.
@@ -94,3 +87,16 @@ Dangerous in pretty much exactly the same way as start."
   (init (map (fn [site]
                (assoc site :running false))
              (:sites server))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Public
+
+(defn init
+  "This approach is mixing up concerns:
+I really have a collection of sites, each with its own handlers/stop fn"
+  [site-descriptions]
+  ;; FIXME: Switch to using slingshot
+  ;; Q: What did that comment even mean?
+  {:running nil
+   :sites site-descriptions
+   :repl nil})
