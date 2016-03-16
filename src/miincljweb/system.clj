@@ -23,6 +23,7 @@
 I really have a collection of sites, each with its own handlers/stop fn"
   [site-descriptions]
   ;; FIXME: Switch to using slingshot
+  ;; Q: What did that comment even mean?
   {:running nil
    :sites site-descriptions
    :repl nil})
@@ -93,4 +94,3 @@ Dangerous in pretty much exactly the same way as start."
   (init (map (fn [site]
                (assoc site :running false))
              (:sites server))))
-
