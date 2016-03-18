@@ -8,20 +8,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Schema
 
-(defn SiteDescription {:domain s/Str
-                       :port s/Int
+(def port s/Int)
+
+(def site-description {:domain s/Str
                        ;; Seems like it should be a function that retarns a
                        ;; routing function
+                       ;; Something more like
+                       ;; (s/=> (s/=> RingResponse RingRequest))
                        :router (s/=> s/Any)})
 
-(s/defrecord Site []
-  cpt/Lifecycle
-  (start
-      [this]
-    (throw (ex-info "Get this written")))
-  (stop
-      [this]
-    (throw (ex-info "Get this written"))))
+(def site-map {port site-description})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Internal
@@ -29,7 +25,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
 
-(s/defn init :- [Site]
-  [descriptions :- [SiteDescription]]
+(s/defn init
+  [descriptions :- site-map]
   ;; Q: How well does Components handle lazy sequences?
-  (map map->Sites descriptions))
+  ;; A: It doesn't. This approach is all wrong.
+  #_(map map->Sites descriptions)
+  (throw (ex-info "This is only useful for the schema" {})))

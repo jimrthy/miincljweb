@@ -30,7 +30,7 @@ once you have your system compiled and you're ready to go."
   []
   ;; This was a cheese-ball short-cut to get the minimalist
   ;; idea working the first time around.
-  ;; TODO: Make this next line go away.
+  ;; TODO: Make sure everything works without this next line
   #_(reset! (:sites system) (cfg/sites))
   (alter-var-root #'system component/start))
 
@@ -49,7 +49,9 @@ once you have your system compiled and you're ready to go."
   (start))
 
 (defn reset []
-  "Heart of this thing. Stop the current application. Reload any changed source files. Reinitialize everything."
+  "Heart of this thing.
+ Stop the current application. Reload any changed source files.
+ Reinitialize everything."
   (println "Stopping")
   (stop)
   (println "Refreshing namespaces")
