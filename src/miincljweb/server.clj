@@ -1,6 +1,6 @@
 (ns miincljweb.server
   (:require
-   [com.stuartsierra.component :as cpt]
+   [com.stuartsierra.component :as component]
    [compojure.handler :as handler]
    ;; Q: Is this really the best option available?
    ;; A major part of the point is avoiding servlets, but
@@ -13,22 +13,28 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Schema
 
-(s/defrecord WebServer [dispatcher
+(s/defrecord WebServer [descriptor
+                        ;; This next is really the router wrapped in middleware
+                        ;; Really shouldn't be making the distinction in here,
+                        ;; unless it really does make sense to wrap
+                        ;; something like ring/site-defaults around all
+                        ;; the routing.
+                        ;; It kind of does...but only for extremely simplistic
+                        ;; sites.
+                        dispatcher
                         port :- s/Int
-                        ;; Router is something from compojure, for now
-                        ;; TODO: Really should just be a
-                        ;; function that returns...what?
-                        ;; Well, nothing magical from compojure
-                        router
-                        ;; this is a function, I think
-                        shut-down]
+                        ;; Actually, this is probably just a Ring
+                        ;; Handler
+                        ;; TODO: Verify that
+                        router ; :- (s/=> ring/response ring/request)
+                        shut-down :- (s/=> s/Any)]
   component/Lifecycle
   (start
       [this]
-    (let [dispatcher (handler/site router)
+    (let [dispatcher (handler/site router)  ; deprecated: use ring/site-defaults
           sd (server/run-server dispatcher
                                 {:port port})]
-    (trace "Started " (:domain description) " on port " port)
+      (trace "Started a site on port " port)
     (assoc this
            :shut-down sd
            :dispatcher dispatcher)))
@@ -40,13 +46,29 @@
            :dispatcher nil
            :shut-down nil)))
 
+(s/defrecord WebServerGroup [servers :- [WebServer]]
+  component/Lifecycle
+  (start
+      [this]
+    (doseq [s servers]
+      (component/start s))
+    this)
+
+  (stop
+      [this]
+    (doseq [s servers]
+      (component/stop s))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Internal
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
 
-(s/defn init
-  [{:keys [port router]}]
-  (map->WebServer {:port port
+(s/defn init :- WebServer
+  [{:keys [descriptor
+           port s/Int
+           router]}]
+  (map->WebServer {:descriptor descriptor
+                   :port port
                    :router router}))

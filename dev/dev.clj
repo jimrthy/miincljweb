@@ -22,7 +22,7 @@ once you have your system compiled and you're ready to go."
   "Constructs the current development system."
   []
   (alter-var-root #'system
-                  (constantly (system/init {})))
+                  (constantly (sys/init {})))
   (log/set-level! :trace))
 
 (defn start

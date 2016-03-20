@@ -1,8 +1,6 @@
 (ns miincljweb.core
-  (:require 
-   ;;; Q: Do these still serve some sort of purpose?
-   ;;[clojure.xml :as xml]
-   ;;[clojure.zip :as zip]
+  (:require
+   [com.stuartsierra.component :as component]
    [miincljweb.config :as cfg]
    [miincljweb.system :as system])
   (:gen-class))
@@ -16,8 +14,8 @@
 
   (let [dead (system/init)]
     (reset! (:sites dead) (cfg/sites))
-    (let [server (system/start dead)]
-      (comment 
+    (let [server (component/start dead)]
+      (comment
         (try
           ;; Q: What on earth can I do here?
           ;; A: Honestly, this should probably just exit and
