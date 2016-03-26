@@ -11,7 +11,7 @@ once you have your system compiled and you're ready to go."
             [clojure.test :as test]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
             [com.stuartsierra.component :as component]
-            [miincljweb.config :as cfg]
+            [miincljweb.core :as mwc]
             [miincljweb.system :as sys]
             [schema.core :as s]
             [taoensso.timbre :as log]))
@@ -22,7 +22,7 @@ once you have your system compiled and you're ready to go."
   "Constructs the current development system."
   []
   (alter-var-root #'system
-                  (constantly (sys/init {})))
+                  (constantly (sys/init (mwc/default-sample))))
   (log/set-level! :trace))
 
 (defn start
@@ -48,10 +48,11 @@ once you have your system compiled and you're ready to go."
   (println "Restarting system")
   (start))
 
-(defn reset []
+(defn reset
   "Heart of this thing.
- Stop the current application. Reload any changed source files.
- Reinitialize everything."
+  Stop the current application. Reload any changed source files.
+  Reinitialize everything."
+  []
   (println "Stopping")
   (stop)
   (println "Refreshing namespaces")

@@ -1,6 +1,7 @@
 (ns miincljweb.system
   "Skeleton that provides the structure for everything else to build around"
   (:require
+   [clojure.pprint :refer [pprint]]
    [clojure.tools.nrepl.server :as nrepl-server]
    [clojure.core.reducers :as r]
    [com.stuartsierra.component :as cpt]
@@ -82,23 +83,25 @@
 (s/defn description :- SystemMap
   "Go from a map of site descriptions to a description of the system to support them"
   [site-descriptions :- sites/site-map]
-  (let [servers  (reduce (fn [acc site]
-                           (let [dscr (key site)]
-                             (assoc acc
-                                    dscr
-                                    (web/init (assoc
+  (let [raw-servers (reduce (fn [acc site]
+                              (let [dscr (key site)]
+                                (assoc acc
+                                       dscr
+                                       (web/init (assoc
                                                   (val site)
-                                                  :descriptor dscr))))
-                      (throw (ex-info "Not Implemented" {})))
-                    {}
-                    site-descriptions)]
-    {:running {:done (promise)}
-     :servers (web/map->WebServerGroup servers)}))
+                                                  :descriptor dscr)))))
+                            {}
+                            site-descriptions)
+        servers (map web/map->WebServerGroup raw-servers)]
+    (info "Server Descriptions going into the SystemMap:\n" (with-out-str (pprint servers)))
+    (cpt/system-map
+     :running {:done (promise)}
+     :servers servers)))
 
 (s/defn dependencies :- SystemMap
   "Add the dependencies among system description components"
-  [dscr :- SystemMap]
-  dscr)
+  []
+  [])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
@@ -107,4 +110,6 @@
   "This approach is mixing up concerns:
 I really have a collection of sites, each with its own handlers/stop fn"
   [site-descriptions :- sites/site-map]
-  (-> site-descriptions description dependencies))
+  (let [dscr (description site-descriptions)]
+    (info "Initializing System for web server(s):\n" (with-out-str (pprint site-descriptions)))
+    (cpt/system-using dscr (dependencies))))

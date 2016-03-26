@@ -3,12 +3,12 @@
   :url "http://github.com/jimrthy/miincljweb"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[com.datomic/datomic-free "0.9.5350"]
+  :dependencies [[com.datomic/datomic-free "0.9.5350" :exclusions [commons-codec]]
                  [com.stuartsierra/component "0.3.1"]
-                 [com.taoensso/timbre "4.3.1"]
+                 [com.taoensso/timbre "4.3.1" :exclusions [org.clojure/tools.reader]]
                  ;; This depends on ring middleware.
                  ;; Which has weirdness without HttpServletRequest
-                 [compojure "1.5.0"]
+                 [compojure "1.5.0" :exclusions [org.clojure/tools.reader]]
 
                  ;; TODO: Switch to enlive
                  ;; Actually...let individual modules cope with this sort of thing

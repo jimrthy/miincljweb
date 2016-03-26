@@ -35,6 +35,7 @@
   component/Lifecycle
   (start
       [this]
+    (info "Starting web server: " descriptor "on port" port)
     (let [dispatcher
           #_(handler/site router)  ; deprecated: use ring/site-defaults instead
           (if-not use-site-defaults
@@ -50,6 +51,7 @@
 
   (stop
       [this]
+    (info "Stopping web server:" descriptor "on port" port)
     (shut-down)
     (assoc this
            :dispatcher nil
@@ -59,14 +61,21 @@
   component/Lifecycle
   (start
       [this]
-    (doseq [s servers]
-      (component/start s))
-    this)
+    (info "Starting group of servers")
+    ;; Make sure the started servers don't get GC'd immediately
+    (let [started (map component/start servers)]
+      ;; Cope with laziness
+      (doseq [s started]
+        (info "Started server: " s))
+      (assoc this :servers started)))
 
   (stop
       [this]
-    (doseq [s servers]
-      (component/stop s))))
+    (info "Stopping server group")
+    (let [stopped (map component/stop servers)]
+      (doseq [s stopped]
+        (info "Stopped server: " s))
+      (assoc this :servers stopped))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Internal
