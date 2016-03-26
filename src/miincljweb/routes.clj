@@ -6,17 +6,19 @@
    [miincljweb.util :as util])
   (:gen-class))
 
-(defn index [req]
+(defn index
   "Really a default handler that should just go away.
-At the very least, it absolutely does not belong here."
+  At the very least, it absolutely does not belong here."
+  [req]
   (renderer/render-template "index" {:greeting "Bonjour"}))
 
 (defn index2 [req]
   (renderer/render-template "index" {:greeting "Ola"}))
 
-(defn not-found [req]
-"Basic error handler. It's main point is to let me know that I'm missing a route
-that some caller expects."
+(defn not-found
+  "Basic error handler. It's main point is to let me know that I'm missing a route
+  that some caller expects."
+  [req]
   (let [result
         {:status 404
          :headers {"Content-Type" "text/html"}

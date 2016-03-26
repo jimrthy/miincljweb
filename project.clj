@@ -11,6 +11,7 @@
                  [compojure "1.5.0"]
 
                  ;; TODO: Switch to enlive
+                 ;; Actually...let individual modules cope with this sort of thing
                  [de.ubercode.clostache/clostache "1.4.0"]
                  [http-kit "2.1.19"]
                  [org.clojure/clojure "1.8.0"]
@@ -20,7 +21,6 @@
                  [ring/ring-defaults "0.2.0"]]
   :global-vars {*warn-on-reflection* true}
   :min-lein-version "2.0.0"
-  :main miincljweb.core
   :profiles {:dev {:source-paths ["dev"]
                    :dependencies [[org.clojure/tools.namespace "0.2.11"]
                                   [org.clojure/java.classpath "0.2.3"]]}}

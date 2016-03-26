@@ -5,21 +5,23 @@
    [miincljweb.system :as system])
   (:gen-class))
 
+(defn -default-sample
+  []
+  "Pointless web suite to use for demo/basic testing"
+  {:one {:domain "sample.fake.tld"
+         :port 16487
+         :router }
+   })
+
 
 (defn -main
   "Start the server."
   [& args]
-  ;; work around dangerous default behaviour in Clojure
-  (alter-var-root #'*read-eval* (constantly false))
-
   (let [dead (system/init)]
     (reset! (:sites dead) (cfg/sites))
     (let [server (component/start dead)]
-      (comment
-        (try
-          ;; Q: What on earth can I do here?
-          ;; A: Honestly, this should probably just exit and
-          ;; not worry about trying to clean up. That's pretty much
-          ;; the entire point to running this as main, after all.
-          (finally
-            (system/stop server)))))))
+      (try
+        ;;; Provide a mechanism for exit-signalling, just because
+        (-> server :running :done deref)
+        (finally
+          (component/stop server))))))

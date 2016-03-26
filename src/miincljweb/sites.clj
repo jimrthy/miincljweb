@@ -16,7 +16,7 @@
                        ;; routing function
                        ;; Something more like
                        ;; (s/=> (s/=> RingResponse RingRequest))
-                       :router (s/=> s/Any)})
+                       :router (s/=> s/Any s/Any)})
 
 (def site-map
   "keys are just some arbitrary identifier

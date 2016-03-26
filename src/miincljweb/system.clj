@@ -87,12 +87,13 @@
                              (assoc acc
                                     dscr
                                     (web/init (assoc
-                                                  (val site
-                                                       :descriptor dscr)))))
+                                                  (val site)
+                                                  :descriptor dscr))))
                       (throw (ex-info "Not Implemented" {})))
                     {}
                     site-descriptions)]
-    {:servers (web/map->WebServerGroup servers)}))
+    {:running {:done (promise)}
+     :servers (web/map->WebServerGroup servers)}))
 
 (s/defn dependencies :- SystemMap
   "Add the dependencies among system description components"
