@@ -10,9 +10,9 @@ once you have your system compiled and you're ready to go."
             [clojure.repl :refer :all]
             [clojure.test :as test]
             [clojure.tools.namespace.repl :refer (refresh refresh-all)]
+            [com.jimrthy.cluster-web.web.core :as mwc]
+            [com.jimrthy.cluster-web.web.system :as sys]
             [com.stuartsierra.component :as component]
-            [miincljweb.core :as mwc]
-            [miincljweb.system :as sys]
             [schema.core :as s]
             [taoensso.timbre :as log]))
 

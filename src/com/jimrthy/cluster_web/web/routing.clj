@@ -1,5 +1,5 @@
 (ns com.jimrthy.cluster-web.web.routing
-  (:require [com.jimrthy.cluster-web.util :as util]))
+  (:require [com.jimrthy.cluster-web.shared.util :as util]))
 
 
 (defmulti dispatch
