@@ -28,10 +28,6 @@ once you have your system compiled and you're ready to go."
 (defn start
   "Starts the current development system."
   []
-  ;; This was a cheese-ball short-cut to get the minimalist
-  ;; idea working the first time around.
-  ;; TODO: Make sure everything works without this next line
-  #_(reset! (:sites system) (cfg/sites))
   (alter-var-root #'system component/start))
 
 (defn stop

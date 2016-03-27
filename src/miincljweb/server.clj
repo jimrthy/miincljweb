@@ -2,6 +2,7 @@
   (:require
    [com.stuartsierra.component :as component]
    [compojure.handler :as handler]
+   [miincljweb.ring-schema :as ring-schema]
    ;; Q: Is this really the best option available?
    ;; A major part of the point is avoiding servlets, but
    ;; this seems a little extreme
@@ -25,11 +26,7 @@
                         ;; sites.
                         dispatcher
                         port :- s/Int
-                        ;; Actually, this is probably just a Ring
-                        ;; Handler
-                        ;; TODO: Verify that
-                        ;; Q: Where did I define thes?
-                        router ; :- (s/=> ring/response ring/request)
+                        router :- ring-schema/handler
                         shut-down :- (s/=> s/Any)
                         use-site-defaults :- s/Bool]
   component/Lifecycle
@@ -37,7 +34,6 @@
       [this]
     (info "Starting web server: " descriptor "on port" port)
     (let [dispatcher
-          #_(handler/site router)  ; deprecated: use ring/site-defaults instead
           (if-not use-site-defaults
             ;; Caller wanted to specify its own middleware
             router
