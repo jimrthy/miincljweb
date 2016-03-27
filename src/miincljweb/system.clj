@@ -83,20 +83,28 @@
 (s/defn description :- SystemMap
   "Go from a map of site descriptions to a description of the system to support them"
   [site-descriptions :- sites/site-map]
+  (info "Setting up SystemMap description based upon\n" site-descriptions)
   (let [raw-servers (reduce (fn [acc site]
-                              (let [dscr (key site)]
+                              (let [dscr (key site)
+                                    details (val site)]
+                                (trace "reduce'ing" dscr
+                                       "\nassociated w/" details)
                                 (assoc acc
                                        dscr
                                        (web/init (assoc
-                                                  (val site)
+                                                  details
                                                   :descriptor dscr)))))
                             {}
                             site-descriptions)
-        servers (map web/map->WebServerGroup raw-servers)]
-    (info "Server Descriptions going into the SystemMap:\n" (with-out-str (pprint servers)))
+        _ (trace "Initializing Server descriptions based on\n" raw-servers)
+        group (web/map->WebServerGroup {:servers raw-servers})]
+    (trace "Server Descriptions going into the SystemMap:\n"
+          raw-servers
+          "\naka\n"
+          (with-out-str (pprint raw-servers)))
     (cpt/system-map
      :running {:done (promise)}
-     :servers servers)))
+     :servers group)))
 
 (s/defn dependencies :- SystemMap
   "Add the dependencies among system description components"

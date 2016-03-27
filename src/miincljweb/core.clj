@@ -24,7 +24,8 @@
   []
   {:one {:domain "sample.fake.tld"
          :port 16487
-         :router example-one}
+         :router example-one
+         :use-site-defaults true}
    :two {:domain "another.fake.tld"
          :port 16488
          :router example-two}})

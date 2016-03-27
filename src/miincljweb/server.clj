@@ -41,7 +41,7 @@
           (if-not use-site-defaults
             ;; Caller wanted to specify its own middleware
             router
-            (ring-defaults/site-defaults router))
+            (ring-defaults/wrap-defaults router ring-defaults/site-defaults))
           sd (server/run-server dispatcher
                                 {:port port})]
       (trace "Started a site on port " port)
@@ -52,30 +52,36 @@
   (stop
       [this]
     (info "Stopping web server:" descriptor "on port" port)
-    (shut-down)
+    (when shut-down
+      (shut-down))
     (assoc this
            :dispatcher nil
            :shut-down nil)))
 
-(s/defrecord WebServerGroup [servers :- [WebServer]]
+(s/defrecord WebServerGroup [servers :- {s/Keyword WebServer}]
   component/Lifecycle
   (start
       [this]
-    (info "Starting group of servers")
-    ;; Make sure the started servers don't get GC'd immediately
-    (let [started (map component/start servers)]
-      ;; Cope with laziness
-      (doseq [s started]
-        (info "Started server: " s))
-      (assoc this :servers started)))
+    (info "Starting group of servers: " servers)
+    ;; Make sure the started servers don't get GC'd immediately by starting them
+    (assoc this :servers (reduce
+                          (fn [acc [k ^WebServer v]]
+                            (if v
+                              (assoc acc k (.start v))
+                              acc))
+                          {}
+                          servers)))
 
   (stop
       [this]
     (info "Stopping server group")
-    (let [stopped (map component/stop servers)]
-      (doseq [s stopped]
-        (info "Stopped server: " s))
-      (assoc this :servers stopped))))
+    (assoc this :servers (reduce
+                          (fn [acc [k ^WebServer v]]
+                            (if v
+                              (assoc acc k (.stop v))
+                              acc))
+                          {}
+                          servers))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Internal
@@ -85,8 +91,17 @@
 
 (s/defn init :- WebServer
   [{:keys [descriptor
-           port s/Int
-           router]}]
-  (map->WebServer {:descriptor descriptor
-                   :port port
-                   :router router}))
+           port  ; s/Int
+           router
+           use-site-defaults]
+    :as opts}]
+  (let [args {:descriptor descriptor
+              :port port
+              :router router
+              :use-site-defaults use-site-defaults}]
+    (trace "Initializing a web server based on:\n" args
+          "\nfrom\n" opts)
+    (let [result (map->WebServer args)]
+      ;; Q: This isn't going to show anything useful, is it?
+      (trace "Initialized WebServer record:\n" result)
+      result)))
