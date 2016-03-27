@@ -1,5 +1,5 @@
-(ns miincljweb.util
-  (:gen-class))
+(ns com.jimrthy.cluster-web.shared.util
+  (:require [clojure.pprint :refer [pprint]]))
 
 (defn now
   "According to SO, this is the idiomatic way to get the current time."
@@ -35,3 +35,7 @@ That comment seems like a lie"
       (if (= :Named_Node (:tag car))
         (:attrs car)
         (recur (first cdr) (rest cdr))))))
+
+(defn pretty
+  [o]
+  (with-out-str (pprint o)))

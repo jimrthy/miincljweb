@@ -1,10 +1,9 @@
-(ns miincljweb.routes
+(ns com.jimrthy.cluster-web.web.routes
   (:require
    [compojure.core :as compojure]
    [compojure.route :as route]
-   [miincljweb.renderer :as renderer]
-   [miincljweb.util :as util])
-  (:gen-class))
+   [com.jimrthy.cluster-web.web.renderer :as renderer]
+   [com.jimrthy.cluster-web.shared.util :as util]))
 
 (defn index
   "Really a default handler that should just go away.

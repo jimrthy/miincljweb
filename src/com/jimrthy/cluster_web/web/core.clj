@@ -1,10 +1,8 @@
-(ns miincljweb.core
+(ns com.jimrthy.cluster-web.web.core
   (:require
    [com.stuartsierra.component :as component]
    [compojure.core :as compojure]
-   [miincljweb.config :as cfg]
-   [miincljweb.system :as system])
-  (:gen-class))
+   [com.jimrthy.cluster-web.web.system :as system]))
 
 (compojure/defroutes example-one
   "One way to define routes"

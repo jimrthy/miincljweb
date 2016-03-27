@@ -1,4 +1,6 @@
-(ns miincljweb.renderer
+(ns com.jimrthy.cluster-web.web.renderer
+  "Q: Does this make any sense at all?
+  Even if I do switch it over to enlive?"
   (:require [clostache.parser :as clostache]))
 
 (defn read-template

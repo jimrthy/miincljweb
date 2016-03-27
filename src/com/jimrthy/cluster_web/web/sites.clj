@@ -1,9 +1,8 @@
-(ns miincljweb.sites
+(ns com.jimrthy.cluster-web.web.sites
   (:require
    [com.stuartsierra.component :as cpt]
    [schema.core :as s]
-   [taoensso.timbre :as timbre
-    :refer (trace debug info warn error fatal spy with-log-level)]))
+   [taoensso.timbre :as log]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Schema

@@ -1,5 +1,5 @@
-(ns miincljweb.config
-  (:require [miincljweb.routes :as routes]))
+(ns com.jimrthy.cluster-web.web.config
+  (:require [com.jimrthy.cluster-web.web.routes :as routes]))
 
 (defn sites
   "Return a seq that describes the various sites to run.

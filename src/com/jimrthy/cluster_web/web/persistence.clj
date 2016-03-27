@@ -1,4 +1,4 @@
-(ns miincljweb.persistence
+(ns com.jimrthy.cluster-web.shared.persistence
   "Honestly, I shouldn't inflict a database layer on any other poor souls who might choose to use this.
 
 Just declare a protocol and let that be fulfilled as needed.

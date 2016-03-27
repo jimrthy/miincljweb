@@ -1,4 +1,4 @@
-(ns miincljweb.ring-schema
+(ns com.jimrthy.cluster-web.web.ring-schema
   (:require [com.stuartsierra.component :as component]
             [schema.core :as s])
   (:import [java.io File InputStream]))

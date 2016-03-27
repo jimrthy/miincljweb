@@ -1,16 +1,15 @@
-(ns miincljweb.server
+(ns com.jimrthy.cluster-web.web.server
   (:require
+   [com.jimrthy.cluster-web.web.ring-schema :as ring-schema]
    [com.stuartsierra.component :as component]
    [compojure.handler :as handler]
-   [miincljweb.ring-schema :as ring-schema]
    ;; Q: Is this really the best option available?
    ;; A major part of the point is avoiding servlets, but
    ;; this seems a little extreme
    [org.httpkit.server :as server]
    [ring.middleware.defaults :as ring-defaults]
    [schema.core :as s]
-   [taoensso.timbre :as timbre
-    :refer (trace debug info warn error fatal spy with-log-level)]))
+   [taoensso.timbre :as log]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Schema
@@ -32,7 +31,7 @@
   component/Lifecycle
   (start
       [this]
-    (info "Starting web server: " descriptor "on port" port)
+    (log/info "Starting web server: " descriptor "on port" port)
     (let [dispatcher
           (if-not use-site-defaults
             ;; Caller wanted to specify its own middleware
@@ -40,14 +39,14 @@
             (ring-defaults/wrap-defaults router ring-defaults/site-defaults))
           sd (server/run-server dispatcher
                                 {:port port})]
-      (trace "Started a site on port " port)
+      (log/trace "Started a site on port " port)
     (assoc this
            :shut-down sd
            :dispatcher dispatcher)))
 
   (stop
       [this]
-    (info "Stopping web server:" descriptor "on port" port)
+    (log/info "Stopping web server:" descriptor "on port" port)
     (when shut-down
       (shut-down))
     (assoc this
@@ -58,7 +57,7 @@
   component/Lifecycle
   (start
       [this]
-    (info "Starting group of servers: " servers)
+    (log/info "Starting group of servers: " servers)
     ;; Make sure the started servers don't get GC'd immediately by starting them
     (assoc this :servers (reduce
                           (fn [acc [k ^WebServer v]]
@@ -70,7 +69,7 @@
 
   (stop
       [this]
-    (info "Stopping server group")
+    (log/info "Stopping server group")
     (assoc this :servers (reduce
                           (fn [acc [k ^WebServer v]]
                             (if v
@@ -95,9 +94,9 @@
               :port port
               :router router
               :use-site-defaults use-site-defaults}]
-    (trace "Initializing a web server based on:\n" args
+    (log/trace "Initializing a web server based on:\n" args
           "\nfrom\n" opts)
     (let [result (map->WebServer args)]
       ;; Q: This isn't going to show anything useful, is it?
-      (trace "Initialized WebServer record:\n" result)
+      (log/trace "Initialized WebServer record:\n" result)
       result)))

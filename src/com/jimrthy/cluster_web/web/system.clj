@@ -1,14 +1,13 @@
-(ns miincljweb.system
+(ns com.jimrthy.cluster-web.web.system
   "Skeleton that provides the structure for everything else to build around"
   (:require
    [clojure.pprint :refer [pprint]]
    [clojure.tools.nrepl.server :as nrepl-server]
    [clojure.core.reducers :as r]
+   [com.jimrthy.cluster-web.web.routes :as routes]
+   [com.jimrthy.cluster-web.web.server :as web]
+   [com.jimrthy.cluster-web.web.sites :as sites]
    [com.stuartsierra.component :as cpt]
-   [miincljweb.config :as cfg]
-   [miincljweb.routes :as routes]
-   [miincljweb.server :as web]
-   [miincljweb.sites :as sites]
    [schema.core :as s]
    [taoensso.timbre :as timbre
     :refer (trace debug info warn error fatal spy with-log-level)])
@@ -52,7 +51,7 @@
             ;; A: No.
             ;; It was a bad idea to be doing it at this layer from
             ;; the beginning, and it's even worse since clojure 1.8
-            repl (nrepl-server/start-server :port (cfg/repl-port))]
+            repl (nrepl-server/start-server :port 90345)]
         {:running (promise)
          :sites started-sites
          :repl repl})

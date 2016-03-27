@@ -1,8 +1,8 @@
-(ns miincljweb.routing
-  (:require [miincljweb.util :as util]))
+(ns com.jimrthy.cluster-web.web.routing
+  (:require [com.jimrthy.cluster-web.util :as util]))
 
 
-(defmulti dispatch 
+(defmulti dispatch
   (fn [message params]
     :Not-Implemented))
 
@@ -19,4 +19,3 @@
   ;; a piece of functionality that hasn't been ported yet.
   (util/log (str "Message: " message "\nParameters: " params))
   (throw (Exception. "Unrecognized Message Type")))
-
