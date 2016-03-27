@@ -26,4 +26,4 @@
                                   [org.clojure/java.classpath "0.2.3"]]}}
   :repl-options {:init-ns user
                  :timeout 120000
-                 :welcome "Components workflow coming soon"})
+                 :welcome "Use (dev) then (reset) to start"})
