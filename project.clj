@@ -15,9 +15,10 @@
                  [de.ubercode.clostache/clostache "1.4.0"]
                  [http-kit "2.1.19"]
                  [org.clojure/clojure "1.8.0"]
-                 [org.clojure/core.async "0.2.374"]
+                 [org.clojure/core.async "0.2.374" :exclusions [org.clojure/tools.reader]]
                  [org.clojure/tools.nrepl "0.2.12"]
-                 [prismatic/schema "1.0.5"]
+                 [org.clojure/tools.reader "1.0.0-alpha1"]
+                 [prismatic/schema "1.1.0"]
                  [ring/ring-defaults "0.2.0"]]
   :global-vars {*warn-on-reflection* true}
   :min-lein-version "2.0.0"
