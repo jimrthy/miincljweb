@@ -3,7 +3,7 @@
   (:require [com.stuartsierra.component :as component]
             [datomic.api :as d]
             [com.jimrthy.cluster-web.shared.util :as util]
-            [ribol.core :refer [raise]]
+            [hara.event :refer [raise]]
             [schema.core :as s]
             [taoensso.timbre :as log])
   (:import [datomic Datom]

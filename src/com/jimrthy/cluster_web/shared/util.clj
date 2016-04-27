@@ -1,5 +1,9 @@
 (ns com.jimrthy.cluster-web.shared.util
-  (:require [clojure.pprint :refer [pprint]]))
+  (:require [clojure.core.async :as async]
+            [clojure.edn :as edn]
+            [clojure.pprint :refer [pprint]]
+            [schema.core :as s])
+  (:import [java.util Date UUID]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Schema
@@ -81,7 +85,7 @@ But I'm running into a case specifically where
 map is throwing
 IllegalArgumentException Don't know how to create ISeq from: java.util.Collections$UnmodifiableCollection$1  clojure.lang.RT.seqFrom (RT.java:528)"
   [f
-   it :- Collection]
+   it :- java.util.Collection]
   (loop [result []]
     (if (.hasNext it)
       (let [x (.next it)

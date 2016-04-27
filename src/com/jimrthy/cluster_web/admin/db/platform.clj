@@ -11,8 +11,8 @@ TODO: Track it down and provide credit to the speaker"
                                            schema*]]
             [com.jimrthy.cluster-web.shared.db.core :as db]
             [com.jimrthy.cluster-web.shared.util :as util]
+            [hara.event :refer [raise]]
             [io.rkn.conformity :as conformity]
-            [ribol.core :refer [raise]]
             [schema.core :as s]
             [taoensso.timbre :as log])
   (:import [clojure.lang ExceptionInfo]
