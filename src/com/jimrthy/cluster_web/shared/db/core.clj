@@ -22,28 +22,49 @@
 (defn sql-drivers []
   (s/enum :postgres))
 
-(defn UriDescription []
+(defn base-uri-description
+  []
   {:name s/Str
-   :port s/Int
-   :protocol (protocols)
-   :server s/Str ; TODO: This should really be an IP address
-   (s/optional-key :driver) (sql-drivers)
-   (s/optional-key :user) s/Str
-   (s/optional-key :password) s/Str})
+   :protocol (protocols)})
+
+(def in-memory-uri-description base-uri-description)
+
+(defn describe-uri-with-port
+  []
+  (assoc (base-uri-description)
+         :port s/Int
+         :host s/Str))
+
+(def free-uri-description describe-uri-with-port)
+
+(defn sql-uri-description
+  "This all depends on the JDBC part of the connection."
+  []
+  (into (describe-uri-with-port)
+        {(s/optional-key :driver) (sql-drivers)
+         (s/optional-key :user) s/Str
+         (s/optional-key :password) s/Str}))
+
+(defn possible-uri-descriptions
+  []
+  (let [protocol-p (fn [expected actual]
+                     (= expected (:protocol actual)))]
+    (s/conditional (partial protocol-p :free) (free-uri-description)
+                   (partial protocol-p :ram) (in-memory-uri-description)
+                   (partial protocol-p :sql) (sql-uri-description))))
 
 (defmulti build-connection-string :protocol)
 (defmulti disconnect :protocol)
 
-;; com.jimrthy.cluster-web.admin.db.platform is trying to reference
-;; this.
-;; The name isn't wise, but it should be legal. Why is this failing?
-(s/defrecord URL [description :- (UriDescription)
+;;; TODO: Come up with a better/less contentious name
+(s/defrecord URL [description :- (possible-uri-descriptions)
                   connection-string :- s/Str]
   component/Lifecycle
   (start
    [this]
    "Main point is to verify that we can connect
-Although this also serves to cache the connection"
+Although this also serves to create the database
+if it doesn't already exast and cache the connection"
    (comment (log/debug "Starting up the URL. Description: " (util/pretty description)
                        "with keys:" (keys description)))
    (let [connection-string (build-connection-string description)]
@@ -141,7 +162,7 @@ Although this also serves to cache the connection"
          user "datomic"
          password "datomic"
          server "localhost"}
-    :as descr} :- UriDescription]
+    :as descr} :- (sql-uri-description)]
   (when-not driver
     (raise :missing-driver))
   ;; Next construct is weird because I've shadowed a builtin
@@ -150,7 +171,7 @@ Although this also serves to cache the connection"
        user "&password=" password))
 
 (s/defmethod disconnect :ram
-  [descr :- UriDescription]
+  [descr :- (in-memory-uri-description)]
   ;; We really don't want to keep a reference around to these
   (let [cxn-str (build-connection-string descr)]
     (d/delete-database cxn-str)))
@@ -165,18 +186,18 @@ Although this also serves to cache the connection"
 I'm mainly including this on the theory that I might want to switch
 to a different connection during a reset, and multiple connections
 really aren't legal (and probably won't work)."
-  [descr :- UriDescription]
+  [descr :- (possible-uri-descriptions)]
   (-> descr build-connection-string d/connect d/release))
 
 (s/defmethod disconnect :sql
-  [descr :- UriDescription]
+  [descr :- (possible-uri-descriptions)]
   (general-disconnect descr))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
 
 (s/defn uri-ctor :- URL
-  [description :- {:description UriDescription}]
+  [description :- {:description (possible-uri-descriptions)}]
   (map->URL description))
 
 (s/defn q :- [s/Any]
