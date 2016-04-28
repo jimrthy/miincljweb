@@ -34,6 +34,9 @@
 (defmulti build-connection-string :protocol)
 (defmulti disconnect :protocol)
 
+;; com.jimrthy.cluster-web.admin.db.platform is trying to reference
+;; this.
+;; The name isn't wise, but it should be legal. Why is this failing?
 (s/defrecord URL [description :- (UriDescription)
                   connection-string :- s/Str]
   component/Lifecycle

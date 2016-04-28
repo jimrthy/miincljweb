@@ -16,7 +16,7 @@ TODO: Track it down and provide credit to the speaker"
             [schema.core :as s]
             [taoensso.timbre :as log])
   (:import [clojure.lang ExceptionInfo]
-           [fig.db.core URL]))
+           [com.jimrthy.cluster_web.shared.db.core URL]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Prismatic Schema
