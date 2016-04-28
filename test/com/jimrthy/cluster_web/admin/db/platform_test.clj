@@ -1,8 +1,11 @@
-(ns com.jimrthy.cluster-web.admin.db.schema-test
+(ns com.jimrthy.cluster-web.admin.db.platform-test
   "Unit testing the database is generally considered a bad idea, but I have to start somewhere"
   (:require [clojure.pprint :refer [pprint]]
             [clojure.test :refer [are deftest is testing use-fixtures]]
-            [com.jimrthy.cluster-web.admin.db.schema :as db-schema]
+            [com.jimrthy.cluster-web.admin.db.platform :as platform]
+            [com.jimrthy.cluster-web.shared.util :as util]
+            [com.jimrthy.cluster-web.shared.db.core :as db]
+            [com.jimrthy.cluster-web.web.system :as sys]
             [com.stuartsierra.component :as component]
             [datomic.api :as d]
             [datomic-schema.schema :refer [defdbfn
@@ -11,9 +14,6 @@
                                            generate-schema
                                            part
                                            schema]]
-            [com.jimrthy.cluster-web.shared.util :as util]
-            [com.jimrthy.cluster-web.shared.db.core :as db]
-            [com.jimrthy.cluster-web.web.system :as sys]
             [io.rkn.conformity :as conformity]
             [ribol.core :refer [raise]]
             [schema.core :as s]
@@ -228,7 +228,7 @@ But, seriously. I had to start somewhere."
           (is (= (:class root-details) Exceptions$IllegalArgumentExceptionInfo))
           (is (= ":db.error/not-an-entity Unable to resolve entity: :dt/dt" (:message root-details))))
         (let [migration-ret-val
-              (db-schema/do-schema-installation cxn-str structural-txn)]
+              (platform/do-schema-installation cxn-str structural-txn)]
           (is (not migration-ret-val)))
         (is (conformity/has-attribute? (-> cxn-str d/connect d/db) :dt/dt))
         (let [datatypes (db/q sql cxn-str)]
@@ -255,7 +255,7 @@ But, seriously. I had to start somewhere."
         conn (d/connect cxn-str)]
     (is (not (conformity/has-attribute? (d/db conn) :dt/dt)))
     (let [schema-cpt (:database-schema system)]
-      (db-schema/install-schema! schema-cpt))
+      (platform/install-schema! schema-cpt))
     (is (conformity/has-attribute? (d/db conn) :dt/dt))))
 
 (deftest data-platform-basics
@@ -263,7 +263,7 @@ But, seriously. I had to start somewhere."
   (let [cxn-str (extract-connection-string)
         conn (d/connect cxn-str)]
     (let [schema-cpt (:database-schema system)]
-      (db-schema/install-schema! schema-cpt))
+      (platform/install-schema! schema-cpt))
     ;; OK, we should have everything set up to let
     ;; us start rocking and rolling with our kick-ass
     ;; Data Platform.
@@ -291,8 +291,8 @@ But, seriously. I had to start somewhere."
                                 dt.any {bigdec [:bigdec]
                                         bigint [:bigint]
                                         boolean [:boolean]}}
-               my-expansion (db-schema/expand-schema-descr my-description)
-               my-generation (db-schema/expanded-descr->schema my-expansion)]
+               my-expansion (platform/expand-schema-descr my-description)
+               my-generation (platform/expanded-descr->schema my-expansion)]
            (println "Base Description")
            (pprint baseline)
            (println "My Version")
@@ -343,8 +343,8 @@ hasn't been trivial"
                          dt.any {bigdec [:bigdec]
                                  bigint [:bigint]
                                  boolean [:boolean]}}
-        my-expansion (db-schema/expand-schema-descr my-description)
-        my-generation (db-schema/expanded-descr->schema my-expansion)]
+        my-expansion (platform/expand-schema-descr my-description)
+        my-generation (platform/expanded-descr->schema my-expansion)]
     (is (= baseline my-expansion))
     (if (not= canonical my-generation)
       (verify-same-elements canonical my-generation)
