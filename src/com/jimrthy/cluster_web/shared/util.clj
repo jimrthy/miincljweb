@@ -78,17 +78,24 @@ Q: Is something like this handled in, say, flatland/useful?
 
 TOOD: Handle multiple collections.
 TODO: Make this lazy
-TODO: Switch to using iterator-seq instead
+TODO: Switch to using iterator-seq instead.
+Except that it should never be needed. Collections implements Iterable, so
+we should be able to just convert to a seq directly.
+I'm doing something else wrong.
 
 In general, this shouldn't be needed.
 But I'm running into a case specifically where
 map is throwing
 IllegalArgumentException Don't know how to create ISeq from: java.util.Collections$UnmodifiableCollection$1  clojure.lang.RT.seqFrom (RT.java:528)"
   [f
-   it :- java.util.Collection]
-  (loop [result []]
-    (if (.hasNext it)
-      (let [x (.next it)
-            y (f x)]
-        (recur (conj result y)))
-      result)))
+   coll :- java.util.Collection]
+  ;; Q: What are the odds this ever worked?
+  ;; Since it isn't actually an iterator.
+  ;; TODO: Needs a unit test
+  (let [it (.iterator coll)]
+    (loop [result []]
+      (if (.hasNext it)
+        (let [x (.next it)
+              y (f x)]
+          (recur (conj result y)))
+        result))))

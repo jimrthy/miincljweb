@@ -61,25 +61,25 @@
                   connection-string :- s/Str]
   component/Lifecycle
   (start
-   [this]
-   "Main point is to verify that we can connect
-Although this also serves to create the database
-if it doesn't already exast and cache the connection"
-   (comment (log/debug "Starting up the URL. Description: " (util/pretty description)
-                       "with keys:" (keys description)))
-   (let [connection-string (build-connection-string description)]
-     (when (d/create-database connection-string)
-       (log/warn "Created new database"))
-     (d/connect connection-string)
-     (assoc this :connection-string connection-string)))
+      [this]
+    ;; Main point is to verify that we can connect
+    ;; Although this also serves to create the database
+    ;;if it doesn't already exast and cache the connection
+    (comment (log/debug "Starting up the URL. Description: " (util/pretty description)
+                        "with keys:" (keys description)))
+    (let [connection-string (build-connection-string description)]
+      (when (d/create-database connection-string)
+        (log/warn "Created new database"))
+      (d/connect connection-string)
+      (assoc this :connection-string connection-string)))
   (stop
-   [this]
-   (disconnect description)
-   ;; Can't just dissoc...that would return
-   ;; an ordinary map that couldn't be started
-   ;; At least, that seems to be what I'm picking up
-   ;; from the mailing list
-   (assoc this :connection-string nil)))
+      [this]
+    (disconnect description)
+    ;; Can't just dissoc...that would return
+    ;; an ordinary map that couldn't be started
+    ;; At least, that seems to be what I'm picking up
+    ;; from the mailing list
+    (assoc this :connection-string nil)))
 
 ;;; Printing helpers.
 ;;; TODO: These really belong in their own namespace.
@@ -114,7 +114,9 @@ if it doesn't already exast and cache the connection"
    :where [[(where-clause)]]})
 
 (defn BaseTransaction []
-  {:db/id (s/either DbId s/Keyword)})
+  {:db/id (s/either
+           s/Keyword
+           DbId )})
 
 ;; Really just a bunch of attribute/value pairs
 (defn UpsertTransaction []

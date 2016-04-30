@@ -31,9 +31,7 @@ seems to make as much sense here."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Public
 
-(s/defn init
+(s/defn ^:always-validate init :- site-description
+  "This is really just for consistency"
   [dscr :- site-description]
-  ;; Q: How well does Components handle lazy sequences?
-  ;; A: It doesn't. This approach is all wrong.
-  #_(map map->Sites descriptions)
-  (throw (ex-info "This is only useful for the schema" {})))
+  site-description)
