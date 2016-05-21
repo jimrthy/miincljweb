@@ -1,7 +1,6 @@
 (ns com.jimrthy.cluster-web.web.renderer
-  "Q: Does this make any sense at all?
-  Even if I do switch it over to enlive?"
-  (:require [clostache.parser :as clostache]))
+  (:require [net.cgrand.enlive-html :as html]
+   [ring.util.response :as res]))
 
 (defn read-template
   "Pull a template file off the disk.
