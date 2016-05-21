@@ -2,10 +2,13 @@
   (:require
    [com.jimrthy.cluster-web.web.ring-schema :as ring-schema]
    [com.stuartsierra.component :as component]
-   [compojure.handler :as handler]
-   ;; Q: Is this really the best option available?
-   ;; A major part of the point is avoiding servlets, but
-   ;; this seems a little extreme
+
+   ;; TODO: This needs to go away.
+   ;; Just need to pick a/the replacement.
+   ;; Immutant is really too heavy for this...
+   ;; if you're going that far, you might as well
+   ;; go all the way to wildfly/jboss and get
+   ;; real serious site separation
    [org.httpkit.server :as server]
    [ring.middleware.defaults :as ring-defaults]
    [schema.core :as s]

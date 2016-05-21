@@ -1,4 +1,4 @@
-(defproject com.jimrthy/cluster-web "0.1.0-SNAPSHOT"
+(defproject com.jimrthy/cluster-web "0.1.1-SNAPSHOT"
   :description "Skeleton for hanging a website on"
   :url "http://github.com/jimrthy/miincljweb"
   :license {:name "Eclipse Public License"

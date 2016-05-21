@@ -1,14 +1,16 @@
 (ns com.jimrthy.cluster-web.web.core
-  (:require
-   [com.stuartsierra.component :as component]
-   [compojure.core :as compojure]
-   [com.jimrthy.cluster-web.web.system :as system]))
+  (:require [bidi.bidi :as bidi]
+            [bidi.ring :refer (make-handler)]
+            [com.stuartsierra.component :as component]
+            [com.jimrthy.cluster-web.web.system :as system]))
 
-(compojure/defroutes example-one
-  "One way to define routes"
-  (compojure/GET "/" [] (fn [_] {:status 200
-                                 :headers {"Content-Type" "text/plain"}
-                                 :body "First example"})))
+(defn index-handler
+  [request]
+  {:status 200
+   :headers {"Content-Type" "text/plain"}
+   :body "First example"})
+
+(def example-one (make-handler ["/" {"index.html" index-handler}]))
 
 (defn example-two
   "This is just a ring handler, isn't it?"
@@ -18,7 +20,9 @@
    :body "Another example"})
 
 (defn default-sample
-  "Pointless web suite to use for demo/basic testing"
+  "Pointless web suite to use for demo/basic testing.
+
+TODO: Switch to bidi.vhosts for this"
   []
   {:one {:domain "sample.fake.tld"
          :port 16487
